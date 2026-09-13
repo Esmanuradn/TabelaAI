@@ -1,0 +1,691 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #080e18;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 75px; /* Alt navigasyon çubuğu için boşluk */
+}
+
+/* Header Tasarımı */
+.app-header {
+    background-color: #080e18;
+    padding: 12px 16px;
+    border-bottom: 1px solid #1a2332;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.back-btn, .share-btn {
+    background: #1e293b;
+    border: none;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.title-select {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.dropdown-icon {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+/* Ana Konteyner */
+.main-content {
+    padding: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Saha Özeti & GPS */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+h1 {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.gps-badge {
+    background-color: #272216;
+    color: #f59e0b;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* Özet Kartları (4'lü Grid) */
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.card {
+    background-color: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+}
+
+.card-title {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.card-value {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.card-subtext {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 6px;
+    line-height: 1.3;
+}
+
+/* Tarama Kutusu */
+.scan-box {
+    background-color: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.scan-box h2 {
+    font-size: 20px;
+    margin-bottom: 14px;
+}
+
+/* Uyarı Mesajı Kutusu */
+.info-alert {
+    position: relative;
+    background-color: #132036;
+    border-radius: 10px;
+    padding: 14px 14px 14px 18px;
+    margin-bottom: 20px;
+}
+
+.alert-border {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #38bdf8;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.info-alert p {
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+/* Butonlar */
+.button-group {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: #38bdf8;
+    color: #0f172a;
+}
+
+.btn-secondary {
+    background-color: #1e293b;
+    color: #ffffff;
+    border: 1px solid #334155;
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+/* Bottom Navigasyon Barı */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background-color: #0b1322;
+    border-top: 1px solid #1e293b;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 10px;
+    z-index: 100;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #64748b;
+    font-size: 11px;
+    gap: 3px;
+    width: 25%;
+    padding: 6px 0;
+    border-radius: 12px;
+}
+
+.nav-item.active {
+    background-color: #1e293b;
+    color: #38bdf8;
+}
+
+.nav-icon {
+    font-size: 18px;
+}
+
+/* Modal Ekranı */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    padding: 20px;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #0f172a;
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #1e293b;
+}
+
+#camera-feed {
+    width: 100%;
+    height: 180px;
+    background: #000;
+    border-radius: 10px;
+    margin: 12px 0;
+    object-fit: cover;
+}
+
+.manual-inputs input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #fff;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* AR ve Kamera Çizim Alanı Stilleri */
+.ar-container {
+    max-width: 440px !important;
+    padding: 16px !important;
+}
+
+.ar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.guide-text {
+    font-size: 11px;
+    color: #38bdf8;
+    background: #0c4a6e;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.camera-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #000;
+    border: 2px solid #38bdf8;
+}
+
+#camera-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#ar-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+/* Anlık Ölçüm Detay Paneli */
+.ar-live-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+    background: #1e293b;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.info-item strong {
+    color: #ffffff;
+}
+
+.info-item.highlight strong {
+    color: #4ade80;
+    font-size: 14px;
+}
+
+/* Excel Butonu */
+.btn-success {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+/* Otomatik Odaklama Çerçevesi */
+.focus-box-overlay {
+    position: absolute;
+    top: 20%;
+    left: 15%;
+    width: 70%;
+    height: 60%;
+    border: 2px dashed #38bdf8;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    pointer-events: none;
+    animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+    0% { border-color: #38bdf8; box-shadow: 0 0 5px rgba(56, 189, 248, 0.4); }
+    50% { border-color: #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.8); }
+    100% { border-color: #38bdf8; box-shadow: 0 0 5px rgba(56, 189, 248, 0.4); }
+}
+
+/* Mod Seçim Sekmeleri */
+.mode-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mode-btn.active {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #38bdf8;
+}
+
+/* Yüklenen Fotoğraf Önizleme */
+.hidden-preview {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-wrapper.photo-active #camera-feed,
+.camera-wrapper.photo-active .focus-box-overlay {
+    display: none;
+}
+
+.camera-wrapper.photo-active .hidden-preview {
+    display: block;
+}
+
+/* AI Bounding Box (Yapay Zeka Hedef Çerçevesi) */
+.ai-bounding-box {
+    position: absolute;
+    top: 25%;
+    left: 15%;
+    width: 70%;
+    height: 45%;
+    border: 3px dashed #4ade80;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.5);
+    border-radius: 8px;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.box-tag {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    background: #4ade80;
+    color: #0f172a;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Firma Kartı */
+.company-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 20px;
+}
+
+.company-card h3 {
+    font-size: 14px;
+    color: #38bdf8;
+    margin-bottom: 12px;
+}
+
+.company-detail {
+    margin-bottom: 8px;
+}
+
+.company-detail .label {
+    font-size: 11px;
+    color: #94a3b8;
+    display: block;
+}
+
+.ocr-result {
+    font-size: 13px;
+    color: #f1f5f9;
+    background: #0f172a;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+.ocr-status-bar {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    font-size: 12px;
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+.card-wide {
+    grid-column: span 2;
+}
+
+/* Görsel Konteyneri ve Sürükleme Stilleri */
+.camera-wrapper {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    background: #000;
+    overflow: hidden;
+    border-radius: 12px;
+    touch-action: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.zoomable-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transform-origin: center center;
+    transition: transform 0.1s ease-out;
+    cursor: grab;
+}
+
+.zoomable-image:active {
+    cursor: grabbing;
+}
+
+/* Zoom Butonları */
+.zoom-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.zoom-btn {
+    background: #334155;
+    color: #f8fafc;
+    border: 1px solid #475569;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.zoom-btn:active {
+    background: #0284c7;
+}
+
+/* Yapay Zeka Çerçevesi */
+.ai-bounding-box {
+    position: absolute;
+    width: 65%;
+    height: 45%;
+    border: 3px solid #4ade80;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.6);
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.box-tag {
+    position: absolute;
+    top: -24px;
+    left: 4px;
+    background: #4ade80;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+/* Dokunmatik Yeşil Çerçeve & Köşe Tutamaçları */
+.ai-bounding-box {
+    position: absolute;
+    top: 25%;
+    left: 15%;
+    width: 70%;
+    height: 45%;
+    border: 3px solid #4ade80;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+    border-radius: 8px;
+    touch-action: none;
+    cursor: move;
+    z-index: 20;
+}
+
+.box-tag {
+    position: absolute;
+    top: -24px;
+    left: 0;
+    background: #4ade80;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* 4 Köşe Dokunmatik Tutamaçları (Handles) */
+.resize-handle {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: #ffffff;
+    border: 3px solid #4ade80;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    z-index: 25;
+}
+
+.handle-tl { top: -11px; left: -11px; cursor: nwse-resize; }
+.handle-tr { top: -11px; right: -11px; cursor: nesw-resize; }
+.handle-bl { bottom: -11px; left: -11px; cursor: nesw-resize; }
+.handle-br { bottom: -11px; right: -11px; cursor: nwse-resize; }
+
+/* Detaylı Firma Kartı Stilleri */
+.company-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 20px;
+}
+
+.company-card h3 {
+    font-size: 14px;
+    color: #38bdf8;
+    margin-bottom: 12px;
+}
+
+.company-detail {
+    margin-bottom: 10px;
+}
+
+.company-detail .label {
+    font-size: 11px;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.highlight-text {
+    font-size: 16px;
+    color: #4ade80;
+}
+
+.info-tag {
+    display: inline-block;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.desc-text {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.4;
+    background: #0f172a;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.web-link-btn {
+    display: block;
+    text-align: center;
+    background: #334155;
+    color: #38bdf8;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #0284c7;
+    margin-top: 8px;
+}
+
+.web-link-btn:active {
+    background: #0284c7;
+    color: #ffffff;
+}

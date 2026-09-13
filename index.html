@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI & LiDAR Tabela Ölçüm ve Firma Analiz Sistemi</title>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-top">
+            <button class="back-btn">&#10094;</button>
+            <div class="title-select">
+                <span>AI & LiDAR Tabela Analizi</span>
+                <span class="dropdown-icon">&#9660;</span>
+            </div>
+            <button class="share-btn" onclick="excelRaporuIndir()" title="Excel Raporu İndir">📊</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="section-header">
+            <div>
+                <h1>Saha Taraması</h1>
+                <p class="subtitle">Dokunmatik AI Çerçeve & Firma Analizi</p>
+            </div>
+            <span class="gps-badge" id="sensor-status">LiDAR & AI Hazır</span>
+        </div>
+
+        <div class="summary-grid">
+            <div class="card">
+                <span class="card-title">Tabela</span>
+                <span class="card-value" id="tabela-count">0</span>
+            </div>
+            <div class="card">
+                <span class="card-title">Hassasiyet</span>
+                <span class="card-value" style="color: #4ade80;">%99.8</span>
+            </div>
+            <div class="card card-wide">
+                <span class="card-title">Toplam Alan</span>
+                <span class="card-value" id="area-val">—</span>
+                <span class="card-subtext" id="area-sub">Henüz kayıt yok</span>
+            </div>
+        </div>
+
+        <div class="scan-box">
+            <h2>Görsel Yükle veya Kamera Kullan</h2>
+            <div class="info-alert">
+                <div class="alert-border"></div>
+                <p id="system-info">Ekrana dokunarak yeşil kutuyu tabelanın boyutuna göre ayarlayın ve hizalayın.</p>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="taramayiBaslat()">
+                    <span class="icon">📷</span> Canlı Kamera
+                </button>
+                <button class="btn btn-secondary" onclick="fotografYukleAc()">
+                    <span class="icon">🖼️</span> Fotoğraf Yükle
+                </button>
+            </div>
+            
+            <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="dosyaSecildi(event)">
+        </div>
+
+        <!-- Detaylı Firma Bilgisi Kartı -->
+        <div class="company-card hidden" id="company-card">
+            <h3>🏢 Tespit Edilen Firma Detayları</h3>
+            <div class="company-detail">
+                <span class="label">Tabeladan Okunan Yazı:</span>
+                <p id="company-ocr-text" class="ocr-result">Taranıyor...</p>
+            </div>
+            <div class="company-detail">
+                <span class="label">Firma Unvanı / Marka:</span>
+                <strong id="company-name" class="highlight-text">-</strong>
+            </div>
+            <div class="company-detail">
+                <span class="label">Sektör / Faaliyet Alanı:</span>
+                <span id="company-sector" class="info-tag">-</span>
+            </div>
+            <div class="company-detail">
+                <span class="label">Tespit Edilen İletişim / Detay:</span>
+                <p id="company-description" class="desc-text">-</p>
+            </div>
+            <div class="company-detail" id="web-search-wrapper">
+                <a id="company-web-link" href="#" target="_blank" class="web-link-btn">🔍 Google'da Firmayı Ara</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dokunmatik AI Çerçeve Modalı -->
+    <div id="scan-modal" class="modal hidden">
+        <div class="modal-content ar-container">
+            <div class="ar-header">
+                <h3>Dokunmatik Hizalama & AI Ölçüm</h3>
+                <span id="ai-status" class="status-tag">Yeşil Kutuyu Parmağınızla Hizalayın</span>
+            </div>
+            
+            <div class="camera-wrapper" id="camera-wrapper">
+                <video id="webcam" autoplay playsinline></video>
+                <img id="photo-preview" class="hidden-preview" alt="Tabela Görseli">
+                
+                <!-- Sürüklenebilir ve Boyutlandırılabilir Dokunmatik Yeşil Çerçeve -->
+                <div class="ai-bounding-box" id="ai-box">
+                    <span class="box-tag">Tabela Alanı (Parmağınla Ayarla)</span>
+                    <div class="resize-handle handle-tl" data-handle="tl"></div>
+                    <div class="resize-handle handle-tr" data-handle="tr"></div>
+                    <div class="resize-handle handle-bl" data-handle="bl"></div>
+                    <div class="resize-handle handle-br" data-handle="br"></div>
+                </div>
+            </div>
+            
+            <div class="ar-live-info">
+                <div class="info-item">
+                    <span>Genişlik:</span>
+                    <strong id="live-width">0.00 m</strong>
+                </div>
+                <div class="info-item">
+                    <span>Yükseklik:</span>
+                    <strong id="live-height">0.00 m</strong>
+                </div>
+                <div class="info-item">
+                    <span>Alan:</span>
+                    <strong id="live-area">0.00 m²</strong>
+                </div>
+                <div class="info-item highlight">
+                    <span>Tutar:</span>
+                    <strong id="live-price">0.00 TL</strong>
+                </div>
+            </div>
+
+            <div class="ocr-status-bar" id="ocr-status-bar">
+                👇 Yeşil kutuyu tabelanın üstüne sürükleyip boyutlandırın
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="yenidenHesaplaAndOCR()">⚡ Hizalamaya Göre Analiz Et</button>
+                <button class="btn btn-primary" onclick="kaydetAndTamamla()">Kaydet & Tamamla</button>
+                <button class="btn btn-danger" onclick="modalKapat()">Kapat</button>
+            </div>
+        </div>
+    </div>
+    <!-- Firma Bilgi Kartının İçine Eklenecek Buton -->
+<a id="company-map-link" href="#" target="_blank" class="map-btn hidden">
+    📍 Haritada/Konumda Göster
+</a>
+
+    <script src="script.js"></script>
+</body>
+</html>

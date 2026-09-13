@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "HTTPS İle Başlat (Kamera Testi)",
+            "url": "https://localhost:5500",
+            "webRoot": "${workspaceFolder}",
+            "runtimeArgs": [
+                "--ignore-certificate-errors",
+                "--use-fake-ui-for-media-stream",
+                "--use-fake-device-for-media-stream"
+            ]
+        }
+    ]
+    
+}
