@@ -378,6 +378,9 @@ function kaydetAndTamamla() {
         yukseklik: currentHeight,
         alan: currentArea,
         fiyat: currentPrice,
+        enlem: currentLatitude || "Konum Yok",
+        boylam: currentLongitude || "Konum Yok",
+        haritaLink: currentLatitude ? `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}` : "-",
         tarih: new Date().toLocaleDateString('tr-TR')
     });
 
@@ -387,21 +390,119 @@ function kaydetAndTamamla() {
     alert("Tabela Başarıyla Kaydedildi!");
 }
 
+function taramayiBaslat() {
+    const modal = document.getElementById('scan-modal');
+    const video = document.getElementById('webcam');
+    const imgPreview = document.getElementById('photo-preview');
+    
+    if (imgPreview) imgPreview.classList.add('hidden-preview');
+    if (video) video.style.display = 'block';
+    modal.classList.remove('hidden');
+
+    // Öncelikli olarak arka kamerayı dene, hata verirse genel kameraya düş (Fallback)
+    navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" } // 'exact' kaldırıldı
+    }).then(stream => {
+        videoStream = stream;
+        video.srcObject = stream;
+        video.play();
+        setTimeout(() => { yenidenHesaplaAndOCR(); }, 1200);
+    }).catch(err => {
+        console.warn("Arka kamera açılamadı, varsayılan kamera deneniyor:", err);
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            videoStream = stream;
+            video.srcObject = stream;
+            video.play();
+            setTimeout(() => { yenidenHesaplaAndOCR(); }, 1200);
+        })
+        .catch(error => {
+            alert("Kamera erişimi reddedildi veya cihazda kamera bulunamadı: " + error.message);
+        });
+    });
+}
+
+    gpsKonumunuAl();
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (ocrStatus) ocrStatus.innerText = '⚠️ Kamera desteği bulunamadı. Fotoğraf yükleyin.';
+        return;
+    }
+
+    navigator.mediaDevices.getUserMedia({
+        video: {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        },
+        audio: false
+    }).then((stream) => {
+        videoStream = stream;
+        if (video) {
+            video.srcObject = stream;
+            video.play().catch(() => {});
+        }
+        if (ocrStatus) ocrStatus.innerText = '👇 Yeşil kutuyu tabelanın üstüne sürükleyip boyutlandırın';
+    }).catch((error) => {
+        console.error('Kamera erişimi başarısız:', error);
+        if (ocrStatus) ocrStatus.innerText = '⚠️ Kamera açılamadı. Fotoğraf yükleyin.';
+    });
+
+
+function taramayibaslat() {
+    taramayiBaslat();
+}
+
+function yenidenHesaplaAndOCR() {
+    if (loadedImage) {
+        hesaplaVeOCR();
+        return;
+    }
+    if (document.getElementById('ocr-status-bar')) {
+        document.getElementById('ocr-status-bar').innerText = '📷 Önce kamera veya fotoğraf ile görüntü alın.';
+    }
+}
+
+function excelRaporuIndir() {
+    const kayitlar = JSON.parse(localStorage.getItem('tabelaAIKayitlari')) || [];
+    if (!kayitlar.length) {
+        alert('İndirilecek kayıt bulunamadı.');
+        return;
+    }
+
+    if (typeof XLSX === 'undefined') {
+        alert('Excel kütüphanesi yüklenemedi.');
+        return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(kayitlar);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'TabelaRaporu');
+    XLSX.writeFile(workbook, 'tabela_raporu.xlsx');
+}
+
 function modalKapat() {
-    document.getElementById('scan-modal').classList.add('hidden');
+    const modal = document.getElementById('scan-modal');
+    if (modal) modal.classList.add('hidden');
+
     if (videoStream) {
         videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
     }
+
+    const video = document.getElementById('webcam');
+    if (video) video.srcObject = null;
 }
 
 function hafizadanYukle() {
     let kayitlar = JSON.parse(localStorage.getItem('tabelaAIKayitlari')) || [];
-    document.getElementById('tabela-count').innerText = kayitlar.length;
+    const counter = document.getElementById('tabela-count');
+    if (counter) counter.innerText = kayitlar.length;
 }
+
 let currentLatitude = null;
 let currentLongitude = null;
 
-// Fotoğraf veya Tabela Analizi Başladığında GPS Konumunu Al
 function gpsKonumunuAl() {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
@@ -418,23 +519,11 @@ function gpsKonumunuAl() {
     }
 }
 
-// Harita Linkini Oluşturma
 function haritaButonunuGuncelle(lat, lng) {
     const mapBtn = document.getElementById('company-map-link');
     if (!mapBtn || !lat || !lng) return;
 
-    // Google Maps Direkt Pin Konumu Linki
     const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-    
     mapBtn.href = mapUrl;
     mapBtn.classList.remove('hidden');
-}
-
-// Görsel Yüklendiğinde veya Kamera Açıldığında Konum Alımını Tetikleyin
-// Var olan dosyaSecildi() veya taramayiBaslat() fonksiyonlarınızın içine gpsKonumunuAl(); ekleyin.
-function kaydetAndTamamla(){
-    // yeniKayit nesnesinin içine ekleyin:
-enlem: currentLatitude || "Konum Yok";
-boylam: currentLongitude || "Konum Yok";
-haritaLink: currentLatitude ? `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}` : "-";
 }
