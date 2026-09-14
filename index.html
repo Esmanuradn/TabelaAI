@@ -7,6 +7,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
 
@@ -50,7 +51,7 @@
             <h2>Görsel Yükle veya Kamera Kullan</h2>
             <div class="info-alert">
                 <div class="alert-border"></div>
-                <p id="system-info">Ekrana dokunarak yeşil kutuyu tabelanın boyutuna göre ayarlayın ve hizalayın.</p>
+                <p id="system-info">Ekrana dokunarak yeşil kutuyu tabelanın boyutuna ve şekline göre ayarlayın.</p>
             </div>
 
             <div class="button-group">
@@ -84,8 +85,17 @@
                 <span class="label">Tespit Edilen İletişim / Detay:</span>
                 <p id="company-description" class="desc-text">-</p>
             </div>
-            <div class="company-detail" id="web-search-wrapper">
-                <a id="company-web-link" href="#" target="_blank" class="web-link-btn">🔍 Google'da Firmayı Ara</a>
+
+            <!-- KUTUCUK İÇİNDE YAN YANA İKİ BUTON -->
+            <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%;" id="card-action-buttons">
+                <a id="company-web-link" href="#" target="_blank" 
+                   style="flex: 1; text-align: center; background: #4285F4; color: #fff; padding: 10px 8px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                    🔍 Google'da Ara
+                </a>
+                <button onclick="tumTabelalariHaritadaGoster()" type="button"
+                        style="flex: 1; background: #34A853; color: #fff; padding: 10px 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                    🗺️ Haritada Göster
+                </button>
             </div>
         </div>
     </main>
@@ -95,16 +105,27 @@
         <div class="modal-content ar-container">
             <div class="ar-header">
                 <h3>Dokunmatik Hizalama & AI Ölçüm</h3>
-                <span id="ai-status" class="status-tag">Yeşil Kutuyu Parmağınızla Hizalayın</span>
+                <span id="ai-status" class="status-tag">Yeşil Çerçeveyi Hizalayın</span>
+            </div>
+
+            <!-- TABELA ŞEKİL SEÇİM BUTONLARI -->
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 10px 0; width: 100%;">
+                <button type="button" id="shape-rect-btn" onclick="sekilDegistir('rectangle')" 
+                        style="flex: 1; padding: 8px; background: #00ff88; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    🔲 Dikdörtgen
+                </button>
+                <button type="button" id="shape-circle-btn" onclick="sekilDegistir('circle')" 
+                        style="flex: 1; padding: 8px; background: #333; color: #fff; border: 1px solid #555; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    ⚪ Yuvarlak / Oval
+                </button>
             </div>
             
             <div class="camera-wrapper" id="camera-wrapper">
-                <video id="webcam" autoplay playsinline></video>
+                <video id="webcam" autoplay playsinline muted></video>
                 <img id="photo-preview" class="hidden-preview" alt="Tabela Görseli">
                 
-                <!-- Sürüklenebilir ve Boyutlandırılabilir Dokunmatik Yeşil Çerçeve -->
                 <div class="ai-bounding-box" id="ai-box">
-                    <span class="box-tag">Tabela Alanı (Parmağınla Ayarla)</span>
+                    <span class="box-tag">Tabela Alanı</span>
                     <div class="resize-handle handle-tl" data-handle="tl"></div>
                     <div class="resize-handle handle-tr" data-handle="tr"></div>
                     <div class="resize-handle handle-bl" data-handle="bl"></div>
@@ -114,11 +135,11 @@
             
             <div class="ar-live-info">
                 <div class="info-item">
-                    <span>Genişlik:</span>
+                    <span id="label-width">Genişlik:</span>
                     <strong id="live-width">0.00 m</strong>
                 </div>
                 <div class="info-item">
-                    <span>Yükseklik:</span>
+                    <span id="label-height">Yükseklik:</span>
                     <strong id="live-height">0.00 m</strong>
                 </div>
                 <div class="info-item">
@@ -132,7 +153,7 @@
             </div>
 
             <div class="ocr-status-bar" id="ocr-status-bar">
-                👇 Yeşil kutuyu tabelanın üstüne sürükleyip boyutlandırın
+                👇 Yeşil çerçeveyi tabelanın üstüne sürükleyip boyutlandırın
             </div>
 
             <div class="modal-buttons">
@@ -142,11 +163,19 @@
             </div>
         </div>
     </div>
-    <!-- Firma Bilgi Kartının İçine Eklenecek Buton -->
-<a id="company-map-link" href="#" target="_blank" class="map-btn hidden">
-    📍 Haritada/Konumda Göster
-</a>
 
+    <!-- Harita Modalı -->
+    <div id="map-modal" class="modal hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
+        <div style="position:relative; width:90%; height:80%; margin:5% auto; background:#fff; border-radius:12px; padding:20px; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0; color:#333;">🗺️ Kayıtlı Tabela Konumları</h3>
+                <button onclick="haritaModalKapat()" style="background:#ff4d4d; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Kapat</button>
+            </div>
+            <div id="all-signs-map" style="width:100%; height:100%; border-radius:8px;"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
